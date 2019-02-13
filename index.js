@@ -1,5 +1,6 @@
 // code away!
 const express = require('express');
+const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const postsRouter = require('./Posts/post-router');
