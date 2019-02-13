@@ -3,20 +3,7 @@ const router = express.Router();
 
 const users = require('../Users/userDb');
 
-// incoming '/users' from the server
-
-// get all users
-router.get('/', (req, res) => {
-  users
-    .get()
-    .then(users => res.status(200).json({ success: true, users }))
-    .catch(err =>
-      res.status(500).json({
-        success: false,
-        message: 'An error occurred while retrieving the users'
-      })
-    );
-});
+// incoming '/user' from the server
 
 // get user by id, receiving id from param
 router.get('/:id', (req, res) => {
@@ -46,7 +33,6 @@ router.get('/:id', (req, res) => {
 // get user posts
 router.get('/:id/posts', (req, res) => {
   const user_id = req.params.id;
-  console.log(user_id);
 
   users
     .getUserPosts(user_id)
@@ -69,8 +55,8 @@ router.get('/:id/posts', (req, res) => {
     );
 });
 
-// create a new post, requires text field and user id
-router.post('/', (req, res) => {
+// create a new user, requires name field
+router.post('/', capitalizeName, (req, res) => {
   const { name } = req.body;
   const newUser = req.body;
 
@@ -94,34 +80,32 @@ router.post('/', (req, res) => {
     );
 });
 
+// delete user posts and user
 router.delete('/:id', (req, res) => {
-  const id = req.params.id;
+  const user_id = req.params.id;
 
   users
-    .remove(id)
-    .then(post => {
-      if (!post) {
-        res.status(404).json({
-          success: false,
-          message: 'Unable to find a post with specified id.'
-        });
-      } else {
-        res.status(200).json({
-          success: true,
-          message: `Deleted post with the id of ${id}`
-        });
-      }
+    .removeUserPosts(user_id)
+    .then(() => {
+      users.remove(user_id).then(result => {
+        if (result) {
+          res
+            .status(200)
+            .json({ success: true, message: 'User successfully deleted' });
+        } else {
+          res.status(404).json({ success: false, message: 'User not found' });
+        }
+      });
     })
     .catch(err =>
-      res.status(500).json({
-        success: false,
-        message: 'An error occurred while deleting the post'
-      })
+      res
+        .status(500)
+        .json({ message: 'Something went wrong while deleting user and posts' })
     );
 });
 
-// update post by user id
-router.put('/:id', (req, res) => {
+// update user by user id
+router.put('/:id', capitalizeName, (req, res) => {
   const id = req.params.id;
   const incomingUpdate = req.body;
   const updated = { ...req.body, id: req.params.id };
@@ -135,8 +119,8 @@ router.put('/:id', (req, res) => {
   }
   users
     .update(id, incomingUpdate)
-    .then(post => {
-      if (!post) {
+    .then(user => {
+      if (!user) {
         res.status(404).json({
           success: false,
           message: 'Unable to find a user with specified id.'
@@ -152,5 +136,15 @@ router.put('/:id', (req, res) => {
       })
     );
 });
+
+function capitalizeName(req, res, next) {
+  let { name } = req.body;
+  req.body.name = name
+    .toLowerCase()
+    .split(' ')
+    .map(name => name.charAt(0).toUpperCase() + name.substring(1))
+    .join(' ');
+  next();
+}
 
 module.exports = router;
