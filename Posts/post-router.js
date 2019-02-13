@@ -42,32 +42,6 @@ router.get('/:id', (req, res) => {
     );
 });
 
-// get posts by user
-// router.get('/user/:id', (req, res) => {
-//   const user_id = req.params.id;
-//   console.log(user_id);
-
-//   usersDb
-//     .getUserPosts(user_id)
-//     .then(posts => {
-//       if (!posts) {
-//         res.status(404).json({
-//           success: false,
-//           message:
-//             'The post you are looking for does not exist, please try another id'
-//         });
-//       } else {
-//         res.status(200).json({ success: true, posts });
-//       }
-//     })
-//     .catch(err =>
-//       res.status(500).json({
-//         success: false,
-//         message: 'An error occurred while retrieving the posts'
-//       })
-//     );
-// });
-
 // create a new post, requires text field and user id
 router.post('/', (req, res) => {
   const { text, user_id } = req.body;
@@ -120,6 +94,7 @@ router.delete('/:id', (req, res) => {
     );
 });
 
+// update post by user id
 router.put('/:id', (req, res) => {
   const id = req.params.id;
   const incomingUpdate = req.body;

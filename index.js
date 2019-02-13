@@ -3,6 +3,7 @@ const express = require('express');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const postsRouter = require('./Posts/post-router');
+const usersRouter = require('./Users/user-router');
 
 const server = express();
 
@@ -10,9 +11,8 @@ server.use(express.json());
 server.use(helmet());
 server.use(morgan('dev'));
 
-// connect server with user routes
 server.use('/posts', postsRouter);
-// connect server with post routes
+server.use('/users', usersRouter);
 
 // middleware goes here
 
