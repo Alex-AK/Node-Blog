@@ -43,30 +43,30 @@ router.get('/:id', (req, res) => {
 });
 
 // get posts by user
-router.get('/user/:id', (req, res) => {
-  const user_id = req.params.id;
-  console.log(user_id);
+// router.get('/user/:id', (req, res) => {
+//   const user_id = req.params.id;
+//   console.log(user_id);
 
-  usersDb
-    .getUserPosts(user_id)
-    .then(posts => {
-      if (!posts) {
-        res.status(404).json({
-          success: false,
-          message:
-            'The post you are looking for does not exist, please try another id'
-        });
-      } else {
-        res.status(200).json({ success: true, posts });
-      }
-    })
-    .catch(err =>
-      res.status(500).json({
-        success: false,
-        message: 'An error occurred while retrieving the posts'
-      })
-    );
-});
+//   usersDb
+//     .getUserPosts(user_id)
+//     .then(posts => {
+//       if (!posts) {
+//         res.status(404).json({
+//           success: false,
+//           message:
+//             'The post you are looking for does not exist, please try another id'
+//         });
+//       } else {
+//         res.status(200).json({ success: true, posts });
+//       }
+//     })
+//     .catch(err =>
+//       res.status(500).json({
+//         success: false,
+//         message: 'An error occurred while retrieving the posts'
+//       })
+//     );
+// });
 
 // create a new post, requires text field and user id
 router.post('/', (req, res) => {
@@ -95,8 +95,60 @@ router.post('/', (req, res) => {
     );
 });
 
-router.delete('/', (req, res) => {});
+router.delete('/:id', (req, res) => {
+  const id = req.params.id;
 
-router.put('/', (req, res) => {});
+  db.remove(id)
+    .then(post => {
+      if (!post) {
+        res.status(404).json({
+          success: false,
+          message: 'Unable to find a post with specified id.'
+        });
+      } else {
+        res.status(200).json({
+          success: true,
+          message: `Deleted post with the id of ${id}`
+        });
+      }
+    })
+    .catch(err =>
+      res.status(500).json({
+        success: false,
+        message: 'An error occurred while deleting the post'
+      })
+    );
+});
+
+router.put('/:id', (req, res) => {
+  const id = req.params.id;
+  const incomingUpdate = req.body;
+  const updated = { ...req.body, id: req.params.id };
+  const { text } = req.body;
+
+  if (!text) {
+    res.status(400).json({
+      success: false,
+      message: 'Unable to update the post, missing a required input'
+    });
+  }
+  db.update(id, incomingUpdate)
+    .then(post => {
+      if (!post) {
+        res.status(404).json({
+          success: false,
+          message: 'Unable to find a post with specified id.'
+        });
+      } else {
+        res.status(200).json({ success: true, updated });
+      }
+    })
+    .catch(err =>
+      res.status(500).json({
+        success: false,
+        message: 'An error occurred while updating the post'
+      })
+    );
+});
 
 module.exports = router;
