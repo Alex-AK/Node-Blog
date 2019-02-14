@@ -1,4 +1,7 @@
 // code away!
+
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -34,6 +37,8 @@ server.get('/', (req, res) => {
   res.status(200).json({ success: true });
 });
 
-server.listen(5000, () => {
-  console.log('* Server Running on Port 5000 *');
+const port = process.env.PORT || 4000;
+
+server.listen(port, () => {
+  console.log(`* Server Running on Port ${port} *`);
 });
